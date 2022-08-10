@@ -231,6 +231,7 @@ goto end
 
 :init
 set version=0.1.0
+set update=2022-08-10
 set ec=0
 set stopparsing=
 set files=
@@ -448,7 +449,7 @@ exit /b
 ::help
 
 :version
-@echo winchecksum %version%
+@echo winchecksum %version% ^(%update%^)
 @echo https://github.com/lxvs/winchecksum
 exit /b
 ::version
