@@ -229,32 +229,6 @@ call:doit || goto end
 call:copythings "%~dpnx0" || goto end
 goto end
 
-if defined _a (echo _a: %_a%)
-if defined _no_full_path (echo _no_full_path)
-if defined _c (echo _c)
-if defined _copy_with_filename (echo _copy_with_filename)
-if defined _copy_with_path (echo _copy_with_path)
-if defined _p (echo _p)
-if defined _q (echo _q)
-if defined _u (echo _u)
-if defined _f (echo _f)
-if defined _overwrite (echo _overwrite)
-
-:displayfiles
-set "dfiles=%files%"
-:displayfiles_loop
-if defined dfiles (
-    for /f "tokens=1* delims=|" %%a in ("%dfiles%") do (
-        echo file: `%%~a'
-        echo   directory: `%%~dpa'
-        echo   name: `%%~nxa'
-        set "dfiles=%%~b"
-    )
-)
-if defined dfiles (goto displayfiles_loop)
-
-goto end
-
 :init
 set version=0.1.0
 set ec=0
