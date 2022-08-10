@@ -208,6 +208,10 @@ if "%~1" == "--" (
     shift /1
     goto parseargs
 )
+if "%~1" == "--goto-copythingsloop" (
+    set "tobecopied=%~2"
+    goto copythingsloop
+)
 set "arg=%~1"
 set "argpre=%arg:~0,1%"
 if "%argpre%" == "-" (
@@ -222,6 +226,7 @@ goto parseargs
 call:validatealgorithms || goto end
 call:validatefiles || goto end
 call:doit || goto end
+call:copythings "%~dpnx0" || goto end
 goto end
 
 if defined _a (echo _a: %_a%)
@@ -265,7 +270,8 @@ set _q=
 set _u=
 set _f=
 set _overwrite=
-set doit_firstfile=1
+set firstfile=1
+set tobecopied=
 exit /b
 ::init
 
@@ -309,8 +315,6 @@ exit /b 0
 :doit
 if defined files (
     for /f "tokens=1* delims=|" %%a in ("%files%") do (
-        if not defined doit_firstfile (echo;)
-        set doit_firstfile=
         call:sayfilename "%%~dpa" "%%~nxa"
         call:calculate "%%~dpa" "%%~nxa" "%_a%"
         set "files=%%~b"
@@ -321,20 +325,25 @@ exit /b 0
 ::doit
 
 :sayfilename
-setlocal
 set "dir=%~1"
 set "basename=%~2"
+if not defined firstfile (
+    call:newline
+    if defined _copy_with_filename (set "tobecopied=%tobecopied%<>|")
+    if defined _copy_with_path (set "tobecopied=%tobecopied%<>|")
+)
+set firstfile=
 if defined _no_full_path (
     call:say "%basename%"
 ) else (
     call:say "%dir%%basename%"
 )
-endlocal
+if defined _copy_with_filename (set "tobecopied=%tobecopied%%basename%|")
+if defined _copy_with_path (set "tobecopied=%tobecopied%%dir%%basename%|")
 exit /b
 ::sayfilename
 
 :calculate
-setlocal
 set "dir=%~1"
 set "basename=%~2"
 set "algor=%~3"
@@ -356,15 +365,9 @@ for /f "skip=2 delims=" %%i in ('tree "\%result%"') do (
 set "result=%upper:~3%"
 :calculate_skipuppercase
 call:say "%algor%: %result%"
-if defined _c (
-    set /p="%result%" <nul | clip
-)
-if defined _copy_with_filename (
-    cmd /c "(echo %basename%) & (echo %algor%: %result%)" | clip
-)
-if defined _copy_with_path (
-    cmd /c "(echo %file%) & (echo %algor%: %result%)" | clip
-)
+if defined _c (set "tobecopied=%tobecopied%%result%|")
+if defined _copy_with_filename (set "tobecopied=%tobecopied%%algor%: %result%|")
+if defined _copy_with_path (set "tobecopied=%tobecopied%%algor%: %result%|")
 set "fname=%dir%\%basename%.%algor%"
 if defined _f (
     if exist "%fname%" (
@@ -379,9 +382,25 @@ if defined _f (
     )
     cmd /c "(echo %basename%) & (echo %algor%: %result%)" >"%fname%"
 )
-endlocal
 exit /b 0
 ::calculate
+
+:copythings
+if defined tobecopied ((call %1 --goto-copythingsloop "%tobecopied%") | clip)
+exit /b 0
+::copythings
+
+:copythingsloop
+if not defined tobecopied (exit /b 0)
+for /f "tokens=1* delims=|" %%a in ("%tobecopied%") do (
+    if "%%~a" == "<>" (
+        echo;
+    ) else (
+        echo %%~a
+    )
+    set "tobecopied=%%~b"
+)
+goto copythingsloop
 
 :help
 call:version
@@ -441,6 +460,11 @@ echo %say_content%
 shift /1
 goto say_loop
 ::say
+
+:newline
+if not defined _q (echo;)
+exit /b
+::newline
 
 :err
 set ec=1
