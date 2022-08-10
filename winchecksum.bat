@@ -380,7 +380,7 @@ if defined _f (
             exit /b 1
         )
     )
-    (echo %result%) >"%fname%"
+    set /p="%result%" <nul >"%fname%"
 )
 exit /b 0
 ::calculate
