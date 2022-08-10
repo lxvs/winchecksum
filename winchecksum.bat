@@ -380,7 +380,7 @@ if defined _f (
             exit /b 1
         )
     )
-    cmd /c "(echo %basename%) & (echo %algor%: %result%)" >"%fname%"
+    (echo %result%) >"%fname%"
 )
 exit /b 0
 ::calculate
