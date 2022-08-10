@@ -276,14 +276,46 @@ exit /b
 ::init
 
 :validatealgorithms
-if not defined _a ((set _a=SHA256) & (exit /b 0))
-if /i "%_a%" == "md2" ((set _a=MD2) & (exit /b 0))
-if /i "%_a%" == "md4" ((set _a=MD4) & (exit /b 0))
-if /i "%_a%" == "md5" ((set _a=MD5) & (exit /b 0))
-if /i "%_a%" == "sha1" ((set _a=SHA1) & (exit /b 0))
-if /i "%_a%" == "sha256" ((set _a=SHA256) & (exit /b 0))
-if /i "%_a%" == "sha384" ((set _a=SHA384) & (exit /b 0))
-if /i "%_a%" == "sha512" ((set _a=SHA512) & (exit /b 0))
+if not defined _a (
+    set _a=SHA256
+    set _a_lower=sha256
+    exit /b 0
+)
+if /i "%_a%" == "md2" (
+    set _a=MD2
+    set _a_lower=md2
+    exit /b 0
+)
+if /i "%_a%" == "md4" (
+    set _a=MD4
+    set _a_lower=md4
+    exit /b 0
+)
+if /i "%_a%" == "md5" (
+    set _a=MD5
+    set _a_lower=md5
+    exit /b 0
+)
+if /i "%_a%" == "sha1" (
+    set _a=SHA1
+    set _a_lower=sha1
+    exit /b 0
+)
+if /i "%_a%" == "sha256" (
+    set _a=SHA256
+    set _a_lower=sha256
+    exit /b 0
+)
+if /i "%_a%" == "sha384" (
+    set _a=SHA384
+    set _a_lower=sha384
+    exit /b 0
+)
+if /i "%_a%" == "sha512" (
+    set _a=SHA512
+    set _a_lower=sha512
+    exit /b 0
+)
 call:err "error: invalid algorithm `%_a%'"
 exit /b 1
 ::validatealgorithms
@@ -316,7 +348,7 @@ exit /b 0
 if defined files (
     for /f "tokens=1* delims=|" %%a in ("%files%") do (
         call:sayfilename "%%~dpa" "%%~nxa"
-        call:calculate "%%~dpa" "%%~nxa" "%_a%"
+        call:calculate "%%~dpa" "%%~nxa" "%_a%" "%_a_lower%"
         set "files=%%~b"
     )
 )
@@ -347,6 +379,7 @@ exit /b
 set "dir=%~1"
 set "basename=%~2"
 set "algor=%~3"
+set "algor_lower=%~4"
 set "file=%dir%%basename%"
 set result=
 for /f "skip=1 delims=" %%i in ('certutil -hashfile "%file%" %algor%') do (
@@ -368,7 +401,7 @@ call:say "%algor%: %result%"
 if defined _c (set "tobecopied=%tobecopied%%result%|")
 if defined _copy_with_filename (set "tobecopied=%tobecopied%%algor%: %result%|")
 if defined _copy_with_path (set "tobecopied=%tobecopied%%algor%: %result%|")
-set "fname=%dir%\%basename%.%algor%"
+set "fname=%dir%\%basename%.%algor_lower%"
 if defined _f (
     if exist "%fname%" (
         if exist "%fname%\" (
