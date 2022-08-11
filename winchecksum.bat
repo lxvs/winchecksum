@@ -1,7 +1,10 @@
 @echo off
 setlocal enableextensions disabledelayedexpansion
 call:init
-if %1. == . (goto help)
+if %1. == . (
+    call:help
+    goto end
+)
 :parseargs
 if %1. == . (goto endparseargs)
 if defined stopparsing (
@@ -9,10 +12,22 @@ if defined stopparsing (
     shift /1
     goto parseargs
 )
-if "%~1" == "/?" (goto help)
-if "%~1" == "-?" (goto help)
-if "%~1" == "--help" (goto help)
-if "%~1" == "--version" (goto version)
+if "%~1" == "/?" (
+    call:help
+    goto end
+)
+if "%~1" == "-?" (
+    call:help
+    goto end
+)
+if "%~1" == "--help" (
+    call:help
+    goto end
+)
+if "%~1" == "--version" (
+    call:version
+    goto end
+)
 if "%~1" == "-a" (
     if %2. == . (
         call:err "error: `%~1' requires a value"
