@@ -459,6 +459,7 @@ if defined _q (exit /b)
 :say_loop
 if "%~1" == "" (
     if %1. == . (exit /b)
+    echo;
     shift /1
     goto say_loop
 )
@@ -480,6 +481,7 @@ if defined _q (exit /b)
 :err_loop
 if "%~1" == "" (
     if %1. == . (exit /b)
+    >&2 echo;
     shift /1
     goto err_loop
 )
